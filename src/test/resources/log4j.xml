@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration debug="true" xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="CONSOLE_APPENDER" class="org.apache.log4j.ConsoleAppender">
+		<param name="Threshold" value="DEBUG" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p %d{yyyy-MM-dd'T'HH:mm:ss,SSS} [%t] %C{2}.%M(%L): %m%n" />
+		</layout>
+	</appender>
+	<logger name="dk.langli.piteraq">
+		<level value="DEBUG" />
+	</logger>
+	<root>
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE_APPENDER" />
+	</root>
+</log4j:configuration>
+
