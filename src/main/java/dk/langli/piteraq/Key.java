@@ -7,11 +7,13 @@ import javax.crypto.BadPaddingException;
 
 import org.pitaya.security.Digest;
 
+import dk.langli.piteraq.hash.Digester;
+
 public abstract class Key {
 	protected enum KeyType { RSA }
 	private KeyType type = null;
 	
-	public Key(KeyType type) {
+	protected Key(KeyType type) {
 		this.type = type;
 	}
 	
@@ -21,7 +23,7 @@ public abstract class Key {
 		}
 	}
 	
-	public KeyType getType() {
+	protected KeyType getType() {
 		return type;
 	}
 	

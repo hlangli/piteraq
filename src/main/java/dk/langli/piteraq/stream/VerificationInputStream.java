@@ -8,10 +8,10 @@ import javax.crypto.BadPaddingException;
 
 import dk.langli.piteraq.VerificationKey;
 
-public class VerificationStream extends FilterInputStream {
+public class VerificationInputStream extends FilterInputStream {
 	private HashInputStream hashStream = null;
 	
-	public VerificationStream(HashInputStream in) {
+	public VerificationInputStream(HashInputStream in) {
 		super(in);
 		this.hashStream = in;
 	}
@@ -19,7 +19,8 @@ public class VerificationStream extends FilterInputStream {
 	/**
 	 * This method closes the VerificationStream and then verifies the hash
 	 * 
-	 * @param key The verification key
+	 * @param verificationKey The verification key
+	 * @param signature The signature to verify the hash of the content against
 	 * @return Whether the hash of this stream verifies against the signature and the verification key
 	 * @throws IOException If the VerificationStream cannot be closed
 	 * @throws BadPaddingException If the verification key modulo is smaller than the length of the hash

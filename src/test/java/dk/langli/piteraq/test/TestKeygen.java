@@ -5,10 +5,22 @@ import org.junit.Test;
 import dk.langli.piteraq.rsa.RSAPrivateKey;
 import dk.langli.piteraq.rsa.RSAPublicKey;
 
-public class TestKeySerialization extends CryptographicTestCase {
+public class TestKeygen extends CryptographicTestCase {
 	@Override
 	protected void setUp() throws Exception {
 	}
+
+//	@Test
+//	public void testLength() {
+//		log.info("BOB: "+bob.length());
+//		assert bob.length() == KEY_LENGTH;
+//		log.info("ALICE: "+bob.length());
+//		assert alice.length() == KEY_LENGTH;
+//		log.info("BOB PUBLIC: "+bob.length());
+//		assert bob.getPublicKey().length() == KEY_LENGTH;
+//		log.info("ALICE PUBLIC: "+bob.length());
+//		assert alice.getPublicKey().length() == KEY_LENGTH;
+//	}
 
 	@Test
 	public void testJsonRsaPublicKeySerialization() {

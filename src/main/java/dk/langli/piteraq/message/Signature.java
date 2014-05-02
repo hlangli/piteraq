@@ -9,26 +9,28 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.pitaya.security.Digest;
 
 import dk.langli.piteraq.CryptographicException;
-import dk.langli.piteraq.NumberConverter;
-import dk.langli.piteraq.SigningKey;
 import dk.langli.piteraq.VerificationKey;
 
 public class Signature<V extends VerificationKey> {
 	private Digest digest = null;
-	private BigInteger h = null;
+	private BigInteger m = null;
 	private BigInteger s = null;
 	private V v = null;
 	
 	public Signature() {
 	}
 	
-	public Signature(String message, SigningKey signingKey, V verificationKey, Digest digest) throws BadPaddingException, CryptographicException, IOException {
-		this.digest = digest;
-		v = verificationKey;
-		h = NumberConverter.toBigInteger(digest.digest(message.getBytes()));
-		s = signingKey.sign(h);
+	public Signature(BigInteger message, BigInteger signature, V verificationKey) throws BadPaddingException, CryptographicException, IOException {
+		this(message, null, signature,verificationKey);
 	}
-	
+
+	public Signature(BigInteger message, Digest digest, BigInteger signature, V verificationKey) throws BadPaddingException, CryptographicException, IOException {
+		this.m = message;
+		this.digest = digest;
+		this.s = signature;
+		this.v = verificationKey;
+	}
+
 	public BigInteger getSignature() {
 		return s;
 	}
@@ -37,16 +39,16 @@ public class Signature<V extends VerificationKey> {
 		return v;
 	}
 
+	public BigInteger getMessage() {
+		return m;
+	}
+	
 	public Digest getDigest() {
 		return digest;
 	}
 	
-	public BigInteger getHash() {
-		return h;
-	}
-	
 	public boolean verify() throws BadPaddingException {
-		return v.verify(h, s);
+		return v.verify(m, s);
 	}
 	
 	@Override
@@ -57,6 +59,6 @@ public class Signature<V extends VerificationKey> {
 	@Override
 	public int hashCode() {
 		HashCodeBuilder hcb = new HashCodeBuilder(17, 77);
-		return hcb.append(h).append(s).append(v).toHashCode();
+		return hcb.append(m).append(digest).append(s).append(v).toHashCode();
 	}
 }

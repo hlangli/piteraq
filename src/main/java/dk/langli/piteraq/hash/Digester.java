@@ -1,4 +1,4 @@
-package dk.langli.piteraq;
+package dk.langli.piteraq.hash;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -10,7 +10,9 @@ import org.pitaya.security.Digest;
 
 import dk.langli.piteraq.BlindingKey;
 import dk.langli.piteraq.Key;
+import dk.langli.piteraq.NumberUtil;
 import dk.langli.piteraq.PublicKey;
+import dk.langli.piteraq.stream.HashInputStream;
 
 public class RSAPublicKey extends Key implements PublicKey, BlindingKey {
 	protected static final BigInteger DEFAULT_EXPONENT = BigInteger.valueOf(65537);
@@ -37,18 +39,22 @@ public class RSAPublicKey extends Key implements PublicKey, BlindingKey {
    public BigInteger getExponent() {
    	return e;
    }
+   
+   public int length() {
+		return NumberUtil.toBytes(getModulus()).length * 8;
+   }
 
 	@Override
-	public BigInteger encrypt(BigInteger clearText) throws BadPaddingException {
-		BigInteger m = clearText;
+	public BigInteger encrypt(BigInteger message) throws BadPaddingException {
+		BigInteger m = message;
 		checkLength(m, n);
 		BigInteger c = m.modPow(e, n);
 		return c;
 	}
 
 	@Override
-	public boolean verify(BigInteger clearText, BigInteger signature) throws BadPaddingException {
-		BigInteger m = clearText;
+	public boolean verify(BigInteger message, BigInteger signature) throws BadPaddingException {
+		BigInteger m = message;
 		checkLength(m, n);
 		BigInteger s = signature;
 		BigInteger check = s.modPow(e, n);
@@ -77,8 +83,8 @@ public class RSAPublicKey extends Key implements PublicKey, BlindingKey {
 	}
 
 	@Override
-	public BigInteger blind(BigInteger clearText, BigInteger blindingFactor) throws BadPaddingException {
-		BigInteger m = clearText;
+	public BigInteger blind(BigInteger message, BigInteger blindingFactor) throws BadPaddingException {
+		BigInteger m = message;
 		BigInteger r = blindingFactor;
 		checkLength(m, n);
 		BigInteger b = ((r.modPow(e, n)).multiply(m)).mod(n);
@@ -86,8 +92,8 @@ public class RSAPublicKey extends Key implements PublicKey, BlindingKey {
 	}
 
 	@Override
-	public BigInteger blind(String message, BigInteger blindingFactor, Digest digest) throws BadPaddingException, IOException {
-		return blind(digest(message, digest), blindingFactor);
+	public BigInteger blind(HashInputStream message, BigInteger blindingFactor) throws BadPaddingException, IOException {
+		return blind(message.digest(), blindingFactor);
 	}
 
 	@Override

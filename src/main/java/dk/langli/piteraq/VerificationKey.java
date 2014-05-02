@@ -8,6 +8,6 @@ import javax.crypto.BadPaddingException;
 import org.pitaya.security.Digest;
 
 public interface VerificationKey {
-	public boolean verify(BigInteger clearText, BigInteger signature) throws BadPaddingException;
+	public boolean verify(BigInteger message, BigInteger signature) throws BadPaddingException;
 	public boolean verify(String message, BigInteger signature, Digest digest) throws BadPaddingException, IOException;
 }

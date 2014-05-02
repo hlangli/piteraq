@@ -11,6 +11,7 @@ import org.pitaya.security.Digest;
 
 import dk.langli.piteraq.CryptographicException;
 import dk.langli.piteraq.Key;
+import dk.langli.piteraq.NumberUtil;
 import dk.langli.piteraq.PrivateKey;
 
 public class RSAPrivateKey extends Key implements PrivateKey<RSAPublicKey> {
@@ -37,6 +38,10 @@ public class RSAPrivateKey extends Key implements PrivateKey<RSAPublicKey> {
 
 	private BigInteger getPhi() {
 		return (p.subtract(ONE)).multiply(q.subtract(ONE));
+	}
+	
+	public int length() {
+		return NumberUtil.toBytes(getModulus()).length * 8;
 	}
 
 	public BigInteger getModulus() {
@@ -66,8 +71,8 @@ public class RSAPrivateKey extends Key implements PrivateKey<RSAPublicKey> {
 	}
 
 	@Override
-	public BigInteger sign(BigInteger clearText) throws BadPaddingException {
-		BigInteger m = clearText;
+	public BigInteger sign(BigInteger message) throws BadPaddingException {
+		BigInteger m = message;
 		BigInteger n = getModulus();
 		checkLength(m, n);
 		BigInteger d = getExponent();

@@ -1,14 +1,9 @@
 package dk.langli.piteraq.message;
 
-import java.io.IOException;
 import java.math.BigInteger;
 
-import javax.crypto.BadPaddingException;
-
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.pitaya.security.Digest;
 
-import dk.langli.piteraq.rsa.RSAPrivateKey;
 import dk.langli.piteraq.rsa.RSAPublicKey;
 
 public class RSABlind {
@@ -18,12 +13,16 @@ public class RSABlind {
 	private RSAPublicKey bu = null;
 	private RSAPublicKey su = null;
 
-	public RSABlind(String message, RSAPrivateKey signingKey, RSAPublicKey blindingKey, Digest digest) throws BadPaddingException, IOException {
-		r = blindingKey.newBlindingFactor();
-		b = blindingKey.blind(message, r, digest);
-		s = signingKey.sign(b);
-		bu = signingKey.getPublicKey();
-		su = blindingKey;
+	public RSABlind(BigInteger blind, BigInteger signedBlind, RSAPublicKey blinderKey, RSAPublicKey signerKey) {
+		this(blind, signedBlind, blinderKey, signerKey, null);
+	}
+
+	public RSABlind(BigInteger blind, BigInteger signedBlind, RSAPublicKey blinderKey, RSAPublicKey signerKey, BigInteger randomFactor) {
+		r = randomFactor;
+		b = blind;
+		s = signedBlind;
+		bu = blinderKey;
+		su = signerKey;
 	}
 	
 	public BigInteger getBlindingFactor() {

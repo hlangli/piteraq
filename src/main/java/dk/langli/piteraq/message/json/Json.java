@@ -13,8 +13,14 @@ public class Json {
 	private Gson gson = null;
 	
 	public Json() {
+		this(true);
+	}
+	
+	public Json(boolean prettyPrint) {
 		GsonBuilder builder = new GsonBuilder();
-		builder.setPrettyPrinting();
+		if(prettyPrint) {
+			builder.setPrettyPrinting();
+		}
 		builder.setFieldNamingPolicy(FieldNamingPolicy.IDENTITY);
 		builder.registerTypeAdapter(BigInteger.class, new BigIntegerTypeAdapter());
 		builder.registerTypeAdapter(Digest.class, new DigestTypeAdapter());

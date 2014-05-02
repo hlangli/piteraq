@@ -25,7 +25,9 @@ public class HashInputStream extends FilterInputStream {
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		int size = super.read(b, off, len);
-		digest.update(b, off, size);
+		if(size != -1) {
+			digest.update(b, off, size);
+		}
 		return size;
 	}
 
@@ -35,5 +37,9 @@ public class HashInputStream extends FilterInputStream {
 		close();
 		BigInteger hash = new BigInteger(1, digest.digest());
 		return hash;
+	}
+	
+	public Digest getDigest() {
+		return digest;
 	}
 }

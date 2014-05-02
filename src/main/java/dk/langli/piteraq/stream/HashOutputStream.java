@@ -5,17 +5,20 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 
+import org.apache.commons.io.output.NullOutputStream;
 import org.pitaya.security.Digest;
 
 public class HashOutputStream extends FilterOutputStream {
 	private Digest digest = null;
+	private BigInteger hash = null;
 	
+	public HashOutputStream(Digest digest) {
+		this(digest, new NullOutputStream());
+	}
+
 	public HashOutputStream(Digest digest, OutputStream out) {
 		super(out);
 		this.digest = digest;
-		if(out instanceof SignatureStream) {
-			((SignatureStream) out).setHashStream(this);
-		}
 	}
 
 	@Override
@@ -25,8 +28,14 @@ public class HashOutputStream extends FilterOutputStream {
 	}
 
 	public BigInteger digest() throws IOException {
-		close();
-		BigInteger hash = new BigInteger(1, digest.digest());
+		if(hash == null) {
+			close();
+			hash = new BigInteger(1, digest.digest());
+		}
 		return hash;
+	}
+	
+	public Digest getDigest() {
+		return digest;
 	}
 }

@@ -10,31 +10,11 @@ import org.junit.Test;
 
 import dk.langli.piteraq.hash.Digester;
 
-public class TestPrimitive extends CryptographicTestCase {
+public class TestPrimitiveBlinding extends CryptographicTestCase {
 	protected static String MSG = "Word up!";
 	
 	@Override
 	protected void setUp() throws Exception {
-	}
-
-	@Test
-	public void testEncryption() throws BadPaddingException {
-		log.info("m: " + MSG);
-		BigInteger m = new BigInteger(1, MSG.getBytes());
-		BigInteger c = bob.getPublicKey().encrypt(m);
-		log.info("c(m): " + toString(c));
-		BigInteger m2 = bob.decrypt(c);
-		log.info("f(c(m)): " + new String(m2.toByteArray()));
-		assert m.equals(m2): "Decryption of cipher-text does not yield the message";
-	}
-
-	@Test
-	public void testSigning() throws BadPaddingException {
-		log.info("m: " + MSG);
-		BigInteger m = new BigInteger(1, MSG.getBytes());
-		BigInteger s = bob.sign(m);
-		log.info("s(m): " + toString(s));
-		assert bob.getPublicKey().verify(m, s): "Signature does not verify against bob's public key";
 	}
 
 	@Test

@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 import org.apache.commons.codec.binary.Base64;
 
-public class NumberConverter {
+public class NumberUtil {
 	public static String toBase64(BigInteger value) {
 		return Base64.encodeBase64String(value.toByteArray());
 	}
@@ -19,5 +19,16 @@ public class NumberConverter {
 
 	public static byte[] toBytes(BigInteger value) {
 		return value.toByteArray();
+	}
+
+	public static byte[] toBytes(BigInteger value, int length) {
+		byte[] buf = toBytes(value);
+		return trimNumber(buf, length);
+	}
+	
+	public static byte[] trimNumber(byte[] value, int length) {
+		byte[] bytes = new byte[length];
+		System.arraycopy(value, value.length-length, bytes, 0, length);
+		return bytes;
 	}
 }
