@@ -59,6 +59,6 @@ public class Signature<V extends VerificationKey> {
 	@Override
 	public int hashCode() {
 		HashCodeBuilder hcb = new HashCodeBuilder(17, 77);
-		return hcb.append(m).append(digest).append(s).append(v).toHashCode();
+		return hcb.append(m).append(digest != null ? digest.toString() : null).append(s).append(v).toHashCode();
 	}
 }

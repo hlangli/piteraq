@@ -32,6 +32,9 @@ public class Piteraq {
 				BigInteger h = null;
 				try {
 					Hash hash = json.fromJson(hStr, Hash.class);
+					if(hash.getValue() == null) {
+						throw new Exception("Message is not a valid hash");
+					}
 					h = hash.getValue();
 					digest = hash.getDigest();
 				}
@@ -47,21 +50,20 @@ public class Piteraq {
 						h = NumberUtil.toBigInteger(hStr);
 					}
 				}
-//				System.err.println(json.toJson(privateKey));
-//				System.err.println(hStr);
-//				System.err.println(h);
 				BigInteger s = privateKey.sign(h);
-				System.out.println(json.toJson(new Signature<RSAPublicKey>(h, digest, s, privateKey.getPublicKey())));
+				Signature<RSAPublicKey> signature = new Signature<RSAPublicKey>(h, digest, s, privateKey.getPublicKey());
+				System.out.println(json.toJson(signature));
 				break;
 			}
 			case "-v": {
 				String hStr = read();
 				BigInteger m = null;
-				Digest digest = null;
 				try {
 					Hash hash = json.fromJson(hStr, Hash.class);
+					if(hash.getValue() == null) {
+						throw new Exception("Message is not a valid hash");
+					}
 					m = hash.getValue();
-					digest = hash.getDigest();
 				}
 				catch(Exception e) {
 					m = NumberUtil.toBigInteger(hStr);
@@ -69,9 +71,8 @@ public class Piteraq {
 				Type signatureType = new TypeToken<Signature<RSAPublicKey>>() {
 		      }.getType();
 				Signature<RSAPublicKey> signature = json.fromJson(args[1], signatureType);
-				boolean verifies = signature.getDigest() == null && digest == null || signature.getDigest().toString().equals(digest.toString());
+				boolean verifies = signature.getMessage().equals(m);
 				if(verifies) {
-					verifies = signature.getMessage().equals(m);
 					verifies = signature.verify();
 				}
 				if(verifies) {
@@ -117,6 +118,18 @@ public class Piteraq {
 				break;
 			}
 			case "-u": {
+				String hStr = args[3];
+				BigInteger m = null;
+				try {
+					Hash hash = json.fromJson(hStr, Hash.class);
+					if(hash.getValue() == null) {
+						throw new Exception("Message is not a valid hash");
+					}
+					m = hash.getValue();
+				}
+				catch(Exception e) {
+					m = NumberUtil.toBigInteger(hStr);
+				}
 				RSAPublicKey publicKey = json.fromJson(args[1], RSAPublicKey.class);
 				BigInteger r = NumberUtil.toBigInteger(args[2]);
 				String bsStr = read();
@@ -124,7 +137,7 @@ public class Piteraq {
 		      }.getType();
 				Signature<RSAPublicKey> bs = json.fromJson(bsStr, signatureType);
 				BigInteger ub = publicKey.unblind(bs.getSignature(), r);
-				Signature<RSAPublicKey> ubs = new Signature<RSAPublicKey>(bs.getMessage(), ub, bs.getVerificationKey());
+				Signature<RSAPublicKey> ubs = new Signature<RSAPublicKey>(m, ub, bs.getVerificationKey());
 				System.out.println(json.toJson(ubs));
 				break;
 			}
@@ -152,7 +165,7 @@ public class Piteraq {
 
 	private static void help(int status) {
 		String classname = Piteraq.class.getSimpleName();
-		String str = "Usage: " + classname + " [-h|-d <hash>|-s <privkey>|-v <signature>|-r <pubkey>|-b <factor> <pubkey>|-u <pubkey> <factor>|-g <length>|-p <privkey>]" + LF;
+		String str = "Usage: " + classname + " [-h|-d <hash>|-s <privkey>|-v <signature>|-r <pubkey>|-b <factor> <pubkey>|-u <pubkey> <factor> <message>|-g <length>|-p <privkey>]" + LF;
 		str += LF;
 		str += "-h     Help" + LF;
 		str += "-d     Digest input and output the hash" + LF;
@@ -160,7 +173,7 @@ public class Piteraq {
 		str += "-v     Verify input with the signature" + LF;
 		str += "-r     Generate random factor for blinding with the public key" + LF;
 		str += "-b     Blind input with the public key and the random factor" + LF;
-		str += "-u     Unblind input with the public key and the random factor" + LF;
+		str += "-u     Unblind input with the public key and the random factor and replace the blinded message with the real one" + LF;
 		str += "-g     Generate private key of length" + LF;
 		str += "-p     Get public key from private key" + LF;
 		System.err.println(str);

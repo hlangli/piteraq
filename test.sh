@@ -49,6 +49,17 @@ function hash() {
 	echo " ${VERIFY}"
 }
 
+function verify() {
+	MESSAGE=$1
+	SIGNATURE=$2
+	INFO=$3
+	OK="${4:-OK}"
+	FAIL="${5:-FAIL}"
+	echo -n "${INFO}"
+	echo -n "${MESSAGE}"|piteraq -v "${SIGNATURE}" > /dev/null
+	echo " `exitcode $? ${OK} ${FAIL}`"
+}
+
 function signature() {
 	PRIVATE_KEY="$1"
 	PUBLIC_KEY="$2"
@@ -61,17 +72,13 @@ function signature() {
 	NONHASH="`echo -n "${MSG}A"|piteraq -d ${DIGEST}`"
 	NONHASH="`escape ${NONHASH}`"
 	# Generate signature
-	SIGNATURE="`echo \"${HASH}\"|piteraq -s \"${PRIVATE_KEY}\"`"
+	SIGNATURE="`echo -n \"${HASH}\"|piteraq -s \"${PRIVATE_KEY}\"`"
 	debug "Signature `json ${SIGNATURE}`"
 	SIGNATURE="`escape ${SIGNATURE}`"
 	# Verify signature
-	echo -n "${DIGEST} SIGNATURE VERIFICATION"
-	echo "${HASH}"|piteraq -v "${SIGNATURE}" > /dev/null
-	echo " `exitcode $? OK FAIL`"
+	verify "${HASH}" "${SIGNATURE}" "${DIGEST} SIGNATURE VERIFICATION"
 	# Verify signature with wrong input (is supposed to fail)
-	echo -n "${DIGEST} SIGNATURE NONVERIFICATION"
-	echo "${NONHASH}"|piteraq -v "${SIGNATURE}" > /dev/null
-	echo " `exitcode $? FAIL OK`"
+	verify "${NONHASH}" "${SIGNATURE}" "${DIGEST} SIGNATURE NONVERIFICATION" FAIL OK
 }
 
 function exitcode() {
@@ -141,24 +148,28 @@ pushd "`dirname $0`" > /dev/null
 
 	# New blinding factor
 	FACTOR="`piteraq -r \"${ALICE_PUB}\"`"
-	echo "BlindingFactor ${FACTOR}"
+	debug "BlindingFactor ${FACTOR}"
 	# Get hash
 	HASH="`echo -n "${MSG}"|piteraq -d ${DIGEST}`"
-	echo "Hash `json ${HASH}`"
+	debug "Hash `json ${HASH}`"
 	HASH="`escape ${HASH}`"
 	# Blind hash
 	BLIND="`echo \"${HASH}\"|piteraq -b \"${ALICE_PUB}\" \"${FACTOR}\"`"
-	echo "Blind ${BLIND}"
+	debug "Blind ${BLIND}"
 	# Sign blind
 	SIGNED_BLIND="`echo \"${BLIND}\"|piteraq -s \"${BOB}\"`"
-	echo "SignedBlind `json ${SIGNED_BLIND}`"
+	debug "SignedBlind `json ${SIGNED_BLIND}`"
 	SIGNED_BLIND="`escape ${SIGNED_BLIND}`"
+	verify "${BLIND}" "${SIGNED_BLIND}" "SIGNED BLIND VERIFICATION"
 	BLIND_SIGNATURE="`echo \"${SIGNED_BLIND}\"|piteraq -s \"${ALICE}\"`"
-	echo "BlindSignature `json ${BLIND_SIGNATURE}`"
+	debug "BlindSignature `json ${BLIND_SIGNATURE}`"
 	BLIND_SIGNATURE="`escape ${BLIND_SIGNATURE}`"
-	UNBLINDED_SIGNATURE="`echo \"${BLIND_SIGNATURE}\"|piteraq -u \"${ALICE_PUB}\" \"${FACTOR}\"`"
-	echo "UnblindedSignature `json ${UNBLINDED_SIGNATURE}`"
+	verify "${BLIND}" "${BLIND_SIGNATURE}" "BLIND SIGNATURE VERIFICATION"
+	UNBLINDED_SIGNATURE="`echo \"${BLIND_SIGNATURE}\"|piteraq -u \"${ALICE_PUB}\" \"${FACTOR}\" \"${HASH}\"`"
+	debug "UnblindedSignature `json ${UNBLINDED_SIGNATURE}`"
 	UNBLINDED_SIGNATURE="`escape ${UNBLINDED_SIGNATURE}`"
+	# Verify unblinded signature
+	verify "${HASH}" "${UNBLINDED_SIGNATURE}" "UNBLINDED SIGNATURE VERIFICATION"
 	
 popd > /dev/null
 
